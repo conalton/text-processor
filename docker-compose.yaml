@@ -1,0 +1,31 @@
+services:
+  mysql:
+    image: mysql:8.0.41
+    container_name: app-mysql
+    ports:
+      - "${MYSQL_PORT}:3306"
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    volumes:
+      - mysql-data:/var/lib/mysql
+    command: --default-authentication-plugin=mysql_native_password
+
+  localstack:
+    image: localstack/localstack:4.10.0
+    container_name: app-localstack
+    ports:
+      - "${LOCALSTACK_PORT}:4566"
+      - "4510-4559:4510-4559"
+    environment:
+      SERVICES: ${LOCALSTACK_SERVICES}
+      DEBUG: ${LOCALSTACK_DEBUG}
+      DATA_DIR: /tmp/localstack/data
+    volumes:
+      - localstack-data:/tmp/localstack
+
+volumes:
+  mysql-data:
+  localstack-data:
