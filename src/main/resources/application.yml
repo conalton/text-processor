@@ -23,3 +23,8 @@ cloud:
     region:
       static: eu-central-1
     endpoint: http://localhost:${LOCALSTACK_PORT}
+    s3:
+        bucket-name: text-cleaner-uploads
+        presigned-url-expiration-minutes: 15
+    sqs:
+        queue-name: text-cleaner-tasks
