@@ -38,7 +38,7 @@ tasks.named<org.springframework.boot.gradle.tasks.run.BootRun>("bootRun") {
 }
 
 springBoot {
-    mainClass.set("org.example.AppApplication")
+    mainClass.set("org.conalton.AppApplication")
 }
 
 java {
