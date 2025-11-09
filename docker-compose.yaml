@@ -22,9 +22,9 @@ services:
     environment:
       SERVICES: ${LOCALSTACK_SERVICES}
       DEBUG: ${LOCALSTACK_DEBUG}
-      DATA_DIR: /tmp/localstack/data
+      DATA_DIR: /var/lib/localstack/data
     volumes:
-      - localstack-data:/tmp/localstack
+      - localstack-data:/var/lib/localstack
 
 volumes:
   mysql-data:
