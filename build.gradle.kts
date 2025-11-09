@@ -2,6 +2,7 @@ plugins {
     id("java")
     id("org.springframework.boot") version "3.5.7"
     id("io.spring.dependency-management") version "1.1.7"
+    id("com.diffplug.spotless") version "6.25.0"
     application
 }
 
@@ -43,5 +44,15 @@ springBoot {
 java {
     toolchain {
         languageVersion.set(JavaLanguageVersion.of(17))
+    }
+}
+
+spotless {
+    java {
+        googleJavaFormat("1.22.0")
+        removeUnusedImports()
+        trimTrailingWhitespace()
+        endWithNewline()
+        target("src/**/*.java")
     }
 }
