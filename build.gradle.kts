@@ -16,6 +16,10 @@ repositories {
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+    implementation("io.github.resilience4j:resilience4j-spring-boot3:2.3.0")
+    implementation("com.github.f4b6a3:uuid-creator:6.0.0")
+    implementation("com.vladmihalcea:hibernate-types-60:2.21.1")
+    implementation("org.springframework.boot:spring-boot-starter-validation")
 
     implementation(platform("io.awspring.cloud:spring-cloud-aws-dependencies:3.1.1"))
 
