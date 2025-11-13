@@ -26,7 +26,7 @@ public class S3FileStorageAdapter implements FileStoragePort {
           case TASKS -> storageProps.getTasksBucketName();
         };
 
-    if (bucketName == null) {
+    if (bucketName == null || bucketName.isBlank()) {
       throw new IllegalArgumentException("Unsupported storage location: " + location);
     }
 
