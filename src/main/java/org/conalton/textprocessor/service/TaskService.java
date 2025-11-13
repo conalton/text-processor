@@ -10,6 +10,7 @@ import org.conalton.textprocessor.entity.Task;
 import org.conalton.textprocessor.repository.task.TaskRepository;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class TaskService {
@@ -26,6 +27,7 @@ public class TaskService {
     this.keyGenerator = keyGenerator;
   }
 
+  @Transactional
   public PresignedUploadResponse createTask() {
     Task task = TaskFactory.create();
     String uploadPath =
