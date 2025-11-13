@@ -1,6 +1,7 @@
 package org.conalton.textprocessor.controller.advice.http;
 
 import io.github.resilience4j.ratelimiter.RequestNotPermitted;
+import jakarta.servlet.http.HttpServletRequest;
 import org.conalton.textprocessor.controller.advice.common.BaseExceptionHandler;
 import org.conalton.textprocessor.dto.response.common.ErrorResponse;
 import org.springframework.core.Ordered;
@@ -18,8 +19,9 @@ import org.springframework.web.servlet.resource.NoResourceFoundException;
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class HttpExceptionHandler extends BaseExceptionHandler {
   @ExceptionHandler(NoResourceFoundException.class)
-  public ResponseEntity<ErrorResponse> handleNotFound(NoResourceFoundException ex) {
-    log.warn("Resource not found: {}", ex.getResourcePath());
+  public ResponseEntity<ErrorResponse> handleNotFound(
+      NoResourceFoundException ex, HttpServletRequest request) {
+    log.warn("Resource not found: path={}, method={}", ex.getResourcePath(), request.getMethod());
     return createErrorResponse(HttpStatus.NOT_FOUND, "Resource not found");
   }
 
