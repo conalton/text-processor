@@ -7,12 +7,11 @@ import org.conalton.textprocessor.domain.service.storage.StorageLocation;
 import org.conalton.textprocessor.dto.internal.PresignedUrlData;
 import org.conalton.textprocessor.dto.response.PresignedUploadResponse;
 import org.conalton.textprocessor.entity.Task;
-import org.conalton.textprocessor.repository.TaskRepository;
+import org.conalton.textprocessor.repository.task.TaskRepository;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
-@Transactional(readOnly = true)
 public class TaskService {
   private final TaskRepository taskRepository;
   private final FileStoragePort fileStorage;
@@ -27,7 +26,6 @@ public class TaskService {
     this.keyGenerator = keyGenerator;
   }
 
-  @Transactional
   public PresignedUploadResponse createTask() {
     Task task = TaskFactory.create();
     String uploadPath =
@@ -38,7 +36,13 @@ public class TaskService {
 
     task.setSourcePath(fileData.key());
 
-    taskRepository.save(task);
+    try {
+      taskRepository.insertTask(task);
+      taskRepository.flush();
+    } catch (DataIntegrityViolationException ex) {
+      throw new IllegalStateException(
+          String.format("UUID collision detected. Id: %s", task.getId()), ex);
+    }
 
     return new PresignedUploadResponse(task.getId(), fileData.url());
   }
