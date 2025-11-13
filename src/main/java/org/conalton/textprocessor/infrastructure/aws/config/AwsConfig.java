@@ -19,7 +19,7 @@ import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 @EnableConfigurationProperties({AwsProperties.class, AwsS3Properties.class})
 public class AwsConfig {
 
-  @Bean
+  @Bean(destroyMethod = "close")
   public S3Presigner s3Presigner(AwsProperties awsProperties, AwsS3Properties s3Properties) {
 
     var builder =
