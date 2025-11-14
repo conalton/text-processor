@@ -20,6 +20,7 @@ dependencies {
     implementation("com.github.f4b6a3:uuid-creator:6.0.0")
     implementation("com.vladmihalcea:hibernate-types-60:2.21.1")
     implementation("org.springframework.boot:spring-boot-starter-validation")
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.14")
 
     implementation(platform("io.awspring.cloud:spring-cloud-aws-dependencies:3.1.1"))
 
