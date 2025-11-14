@@ -7,6 +7,7 @@ import org.conalton.textprocessor.domain.service.storage.StorageProperties;
 import org.conalton.textprocessor.infrastructure.aws.properties.AwsProperties;
 import org.conalton.textprocessor.infrastructure.aws.properties.AwsS3Properties;
 import org.conalton.textprocessor.infrastructure.aws.s3.S3FileStorageAdapter;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -18,6 +19,11 @@ import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 
 @Configuration
 @EnableConfigurationProperties({AwsProperties.class, AwsS3Properties.class})
+@ConditionalOnProperty(
+    prefix = "cloud.aws",
+    name = "enabled",
+    havingValue = "true",
+    matchIfMissing = true)
 public class AwsConfig {
 
   @Bean(destroyMethod = "close")
