@@ -2,6 +2,7 @@ package org.conalton.textprocessor.infrastructure.aws.config;
 
 import java.net.URI;
 import org.conalton.textprocessor.domain.service.storage.FileStoragePort;
+import org.conalton.textprocessor.domain.service.storage.StorageLocationResolver;
 import org.conalton.textprocessor.domain.service.storage.StorageProperties;
 import org.conalton.textprocessor.infrastructure.aws.properties.AwsProperties;
 import org.conalton.textprocessor.infrastructure.aws.properties.AwsS3Properties;
@@ -44,7 +45,7 @@ public class AwsConfig {
 
   @Bean
   public FileStoragePort s3FileStorageAdapter(
-      S3Presigner s3Presigner, StorageProperties storageProps) {
-    return new S3FileStorageAdapter(s3Presigner, storageProps);
+      S3Presigner s3Presigner, StorageProperties storageProps, StorageLocationResolver resolver) {
+    return new S3FileStorageAdapter(s3Presigner, storageProps, resolver);
   }
 }
