@@ -1,0 +1,42 @@
+package org.conalton.textprocessor.service;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.verify;
+
+import org.conalton.textprocessor.config.TestStorageConfiguration;
+import org.conalton.textprocessor.domain.service.storage.StorageProperties;
+import org.conalton.textprocessor.dto.response.PresignedUploadResponse;
+import org.conalton.textprocessor.entity.Task;
+import org.conalton.textprocessor.repository.task.TaskRepository;
+import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+
+@SpringBootTest
+@Import(TestStorageConfiguration.class)
+@ActiveProfiles("test")
+class TaskServiceTest {
+
+  @Autowired private TaskService taskService;
+
+  @MockitoBean private TaskRepository taskRepository;
+
+  @Autowired private StorageProperties storageProperties;
+
+  @Test
+  void createTask_generatesKeyAndUsesBucket() {
+    PresignedUploadResponse response = taskService.createTask();
+
+    assertThat(response.uploadUrl())
+        .startsWith("https://stub.local/" + storageProperties.getTasksBucketName() + "/")
+        .contains("?expires=" + storageProperties.getPresignedUrlExpirationMinutes());
+
+    ArgumentCaptor<Task> captor = ArgumentCaptor.forClass(Task.class);
+    verify(taskRepository).insertTask(captor.capture());
+    assertThat(captor.getValue().getSourcePath()).isNotBlank();
+  }
+}

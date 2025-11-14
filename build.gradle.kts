@@ -16,6 +16,11 @@ repositories {
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+    implementation("io.github.resilience4j:resilience4j-spring-boot3:2.3.0")
+    implementation("com.github.f4b6a3:uuid-creator:6.0.0")
+    implementation("com.vladmihalcea:hibernate-types-60:2.21.1")
+    implementation("org.springframework.boot:spring-boot-starter-validation")
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.14")
 
     implementation(platform("io.awspring.cloud:spring-cloud-aws-dependencies:3.1.1"))
 
@@ -26,6 +31,7 @@ dependencies {
     developmentOnly("org.springframework.boot:spring-boot-devtools")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
+    testImplementation("com.h2database:h2")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
@@ -38,7 +44,7 @@ tasks.named<org.springframework.boot.gradle.tasks.run.BootRun>("bootRun") {
 }
 
 springBoot {
-    mainClass.set("org.conalton.AppApplication")
+    mainClass.set("org.conalton.textprocessor.AppApplication")
 }
 
 java {

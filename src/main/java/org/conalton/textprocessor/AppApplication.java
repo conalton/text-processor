@@ -1,4 +1,4 @@
-package org.conalton;
+package org.conalton.textprocessor;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
