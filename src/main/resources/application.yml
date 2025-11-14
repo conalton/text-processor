@@ -36,7 +36,7 @@ cloud:
     tasks-bucket-name: text-processor-uploads
     presigned-url-expiration-minutes: 15
   aws:
-    enabled: false
+    enabled: true
     access-key: ${AWS_ACCESS_KEY}
     secret-key: ${AWS_SECRET_KEY}
     region: ${AWS_REGION}
