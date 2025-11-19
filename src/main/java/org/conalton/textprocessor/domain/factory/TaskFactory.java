@@ -13,6 +13,7 @@ public class TaskFactory {
     task.setId(UuidCreator.getTimeOrderedEpoch().toString());
     task.setStatus(TaskStatus.PENDING);
     task.setCreatedAt(Instant.now());
+    task.markAsNew();
     return task;
   }
 }

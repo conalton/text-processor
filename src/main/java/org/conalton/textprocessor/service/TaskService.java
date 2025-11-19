@@ -7,6 +7,7 @@ import org.conalton.textprocessor.domain.service.storage.StorageLocation;
 import org.conalton.textprocessor.dto.internal.PresignedUrlData;
 import org.conalton.textprocessor.dto.response.PresignedUploadResponse;
 import org.conalton.textprocessor.entity.Task;
+import org.conalton.textprocessor.infrastructure.persistence.constraints.ConstraintViolationClassifier;
 import org.conalton.textprocessor.repository.task.TaskRepository;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -17,14 +18,17 @@ public class TaskService {
   private final TaskRepository taskRepository;
   private final FileStoragePort fileStorage;
   private final DateBasedKeyGenerator keyGenerator;
+  private final ConstraintViolationClassifier constraintViolationClassifier;
 
   public TaskService(
       TaskRepository taskRepository,
       FileStoragePort fileStorage,
-      DateBasedKeyGenerator keyGenerator) {
+      DateBasedKeyGenerator keyGenerator,
+      ConstraintViolationClassifier constraintViolationClassifier) {
     this.taskRepository = taskRepository;
     this.fileStorage = fileStorage;
     this.keyGenerator = keyGenerator;
+    this.constraintViolationClassifier = constraintViolationClassifier;
   }
 
   @Transactional
@@ -39,11 +43,12 @@ public class TaskService {
     task.setSourcePath(fileData.key());
 
     try {
-      taskRepository.insertTask(task);
-      taskRepository.flush();
+      taskRepository.saveAndFlush(task);
     } catch (DataIntegrityViolationException ex) {
-      throw new IllegalStateException(
-          String.format("UUID collision detected. Id: %s", task.getId()), ex);
+      if (constraintViolationClassifier.isPrimaryKeyViolation(ex)) {
+        throw new IllegalStateException("UUID collision detected: " + task.getId(), ex);
+      }
+      throw ex;
     }
 
     return new PresignedUploadResponse(task.getId(), fileData.url());
