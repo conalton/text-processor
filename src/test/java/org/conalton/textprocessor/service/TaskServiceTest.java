@@ -36,7 +36,7 @@ class TaskServiceTest {
         .contains("?expires=" + storageProperties.getPresignedUrlExpirationMinutes());
 
     ArgumentCaptor<Task> captor = ArgumentCaptor.forClass(Task.class);
-    verify(taskRepository).insertTask(captor.capture());
+    verify(taskRepository).saveAndFlush(captor.capture());
     assertThat(captor.getValue().getSourcePath()).isNotBlank();
   }
 }

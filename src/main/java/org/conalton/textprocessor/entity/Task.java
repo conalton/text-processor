@@ -7,7 +7,7 @@ import java.time.Instant;
 @Table(name = "tasks")
 public final class Task {
   @Id
-  @Column(name = "id", columnDefinition = "VARCHAR(36)")
+  @Column(name = "id")
   private String id;
 
   @Column(name = "source_path", nullable = false)
