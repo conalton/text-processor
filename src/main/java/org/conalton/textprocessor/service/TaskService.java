@@ -1,5 +1,7 @@
 package org.conalton.textprocessor.service;
 
+import static org.conalton.textprocessor.infrastructure.persistence.constraints.ConstraintViolationClassifier.BEAN_NAME;
+
 import org.conalton.textprocessor.domain.factory.TaskFactory;
 import org.conalton.textprocessor.domain.service.storage.DateBasedKeyGenerator;
 import org.conalton.textprocessor.domain.service.storage.FileStoragePort;
@@ -10,11 +12,15 @@ import org.conalton.textprocessor.entity.Task;
 import org.conalton.textprocessor.infrastructure.persistence.constraints.ConstraintViolationClassifier;
 import org.conalton.textprocessor.repository.task.TaskRepository;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Recover;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class TaskService {
+  private static final int MAX_PRIMARY_KEY_RETRIES = 5;
   private final TaskRepository taskRepository;
   private final FileStoragePort fileStorage;
   private final DateBasedKeyGenerator keyGenerator;
@@ -31,6 +37,11 @@ public class TaskService {
     this.constraintViolationClassifier = constraintViolationClassifier;
   }
 
+  @Retryable(
+      retryFor = {DataIntegrityViolationException.class},
+      maxAttempts = MAX_PRIMARY_KEY_RETRIES,
+      exceptionExpression = "@" + BEAN_NAME + ".isPrimaryKeyViolation(#root)",
+      backoff = @Backoff(delay = 0))
   @Transactional
   public PresignedUploadResponse createTask() {
     Task task = TaskFactory.create();
@@ -39,18 +50,18 @@ public class TaskService {
 
     PresignedUrlData fileData =
         this.fileStorage.generatePresignedUploadUrl(StorageLocation.TASKS, uploadPath);
-
     task.setSourcePath(fileData.key());
-
-    try {
-      taskRepository.saveAndFlush(task);
-    } catch (DataIntegrityViolationException ex) {
-      if (constraintViolationClassifier.isPrimaryKeyViolation(ex)) {
-        throw new IllegalStateException("UUID collision detected: " + task.getId(), ex);
-      }
-      throw ex;
-    }
+    taskRepository.saveAndFlush(task);
 
     return new PresignedUploadResponse(task.getId(), fileData.url());
+  }
+
+  @Recover
+  protected PresignedUploadResponse recover(DataIntegrityViolationException ex) {
+    if (constraintViolationClassifier.isPrimaryKeyViolation(ex)) {
+      throw new IllegalStateException(
+          String.format("UUID collision detected after %d attempts", MAX_PRIMARY_KEY_RETRIES), ex);
+    }
+    throw ex;
   }
 }

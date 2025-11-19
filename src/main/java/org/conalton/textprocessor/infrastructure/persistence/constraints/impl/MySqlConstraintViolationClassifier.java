@@ -1,5 +1,7 @@
 package org.conalton.textprocessor.infrastructure.persistence.constraints.impl;
 
+import static org.conalton.textprocessor.infrastructure.persistence.constraints.ConstraintViolationClassifier.BEAN_NAME;
+
 import java.sql.SQLException;
 import java.util.Optional;
 import java.util.regex.Matcher;
@@ -11,7 +13,7 @@ import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Component;
 
-@Component
+@Component(BEAN_NAME)
 public class MySqlConstraintViolationClassifier extends ConstraintViolationClassifier {
   private static final String PRIMARY_KEY_NAME = "PRIMARY";
   private static final String SQL_STATE_INTEGRITY_CONSTRAINT = "23000";
