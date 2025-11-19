@@ -19,7 +19,7 @@ case "$1" in
     ;;
   test)
     echo "Running tests with the 'test' profile..."
-    SPRING_PROFILES_ACTIVE=test ./gradlew test
+    SPRING_PROFILES_ACTIVE=test ./gradlew test --rerun
     ;;
   infra)
     echo "Creating S3 bucket and SQS queue in LocalStack..."
