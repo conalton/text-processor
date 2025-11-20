@@ -13,6 +13,10 @@ This is a pet project that demonstrates a modern Spring Boot microservice with t
 - **API Documentation**: Interactive Swagger UI for API exploration
 - **Local Development**: LocalStack for AWS services emulation
 - **Containerized Infrastructure**: Docker Compose for easy setup
+- **Database Migrations**: Schema evolution managed with Flyway
+- **Integration Testing**: Isolated database tests via Testcontainers
+- **Code Quality**: Consistent formatting enforced with Spotless
+- **CI/CD Automation**: Pipeline that checks code style and runs the full test suite
 
 ## Tech Stack
 
@@ -25,6 +29,9 @@ This is a pet project that demonstrates a modern Spring Boot microservice with t
 - **Resilience4j** for rate limiting
 - **Swagger/OpenAPI 3** for API documentation
 - **Gradle** for build management
+- **Flyway** for database migrations
+- **Testcontainers** for integration testing
+- **Spotless** for code style automation
 
 ## Prerequisites
 
@@ -119,12 +126,6 @@ The application will start with debug agent on port 5005 and the API on port 808
 ./run.sh test
 ```
 
-Or using Gradle directly:
-
-```bash
-./gradlew test
-```
-
 ## API Documentation
 
 Once the application is running, access the interactive API documentation:
@@ -169,6 +170,7 @@ txt-cleaner/
 │   │   │   ├── entity/           # JPA entities
 │   │   │   ├── dto/              # Data transfer objects
 │   │   │   ├── config/           # Spring configuration
+│   │   │   ├── infrastructure/   # Cloud & DB infrastructure
 │   │   │   └── AppApplication.java
 │   │   └── resources/
 │   │       ├── application.yml
