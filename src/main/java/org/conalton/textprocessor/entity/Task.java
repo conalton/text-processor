@@ -2,12 +2,13 @@ package org.conalton.textprocessor.entity;
 
 import jakarta.persistence.*;
 import java.time.Instant;
+import org.springframework.data.domain.Persistable;
 
 @Entity
 @Table(name = "tasks")
-public final class Task {
+public final class Task implements Persistable<String> {
   @Id
-  @Column(name = "id", columnDefinition = "VARCHAR(36)")
+  @Column(name = "id")
   private String id;
 
   @Column(name = "source_path", nullable = false)
@@ -28,6 +29,8 @@ public final class Task {
 
   @Column(columnDefinition = "JSON")
   private String meta;
+
+  @Transient private boolean isNew = false;
 
   public String getId() {
     return id;
@@ -83,5 +86,20 @@ public final class Task {
 
   public void setMeta(String meta) {
     this.meta = meta;
+  }
+
+  @Override
+  public boolean isNew() {
+    return isNew;
+  }
+
+  public void markAsNew() {
+    this.isNew = true;
+  }
+
+  @PostLoad
+  @PostPersist
+  void markNotNew() {
+    this.isNew = false;
   }
 }
