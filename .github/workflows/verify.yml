@@ -20,13 +20,6 @@ jobs:
           distribution: temurin
           java-version: 17
 
-      - name: Upload test report
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: test-report
-          path: build/reports/tests/test
-
       - name: Cache Gradle packages
         uses: actions/cache@v4
         with:
@@ -40,5 +33,15 @@ jobs:
       - name: Run Spotless check
         run: ./gradlew spotlessCheck
 
+      - name: Prepare env file for tests
+        run: cp .env.sample .env
+
       - name: Run tests
         run: ./run.sh test
+
+      - name: Upload test report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-report
+          path: ./build/reports/tests/test
