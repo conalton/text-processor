@@ -32,7 +32,7 @@ spring:
 
 cloud:
   storage:
-    tasks-bucket-name: text-processor-uploads
+    tasks-bucket-name: ${TASK_UPLOADS_LOCATION}
     presigned-url-expiration-minutes: 15
   aws:
     enabled: true
@@ -44,4 +44,4 @@ cloud:
         public-endpoint: http://${AWS_HOST}:${LOCALSTACK_PORT}
         path-style-access-enabled: true
     sqs:
-        queue-name: text-processor-tasks
+        queue-name: ${TASK_QUEUE_NAME}
