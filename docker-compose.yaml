@@ -23,8 +23,11 @@ services:
       SERVICES: ${LOCALSTACK_SERVICES}
       DEBUG: ${LOCALSTACK_DEBUG}
       DATA_DIR: /var/lib/localstack/data
+    env_file:
+      - .env
     volumes:
       - localstack-data:/var/lib/localstack
+      - ./localstack/init:/etc/localstack/init/ready.d
 
 volumes:
   mysql-data:
