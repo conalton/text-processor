@@ -2,7 +2,7 @@
 set -euo pipefail
 
 if [[ $# -ne 1 ]]; then
-  echo "Usage: $0 {debug|test|infra|migration-add}"
+  echo "Usage: $0 {debug|test|migration-add}"
   exit 1
 fi
 
@@ -20,12 +20,6 @@ case "$1" in
   test)
     echo "Running tests with the 'test' profile..."
     SPRING_PROFILES_ACTIVE=test ./gradlew test --rerun
-    ;;
-  infra)
-    echo "Creating S3 bucket and SQS queue in LocalStack..."
-    docker-compose exec -T localstack awslocal s3 mb s3://text-processor-uploads --region eu-central-1
-    docker-compose exec -T localstack awslocal sqs create-queue --queue-name text-processor-tasks --region eu-central-1
-    echo "Infrastructure bootstrap complete."
     ;;
   migration-add)
     read -rp "Enter migration name (e.g., add_users_table): " MIGRATION_NAME
@@ -60,7 +54,7 @@ case "$1" in
     ;;
   *)
     echo "Unknown mode: $1"
-    echo "Allowed values: debug, test, infra, migration-add"
+    echo "Allowed values: debug, test, migration-add"
     exit 1
     ;;
 esac
