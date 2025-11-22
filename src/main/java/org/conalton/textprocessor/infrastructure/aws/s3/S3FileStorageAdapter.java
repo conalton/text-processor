@@ -1,11 +1,11 @@
 package org.conalton.textprocessor.infrastructure.aws.s3;
 
 import java.time.Duration;
-import org.conalton.textprocessor.domain.service.storage.FileStoragePort;
-import org.conalton.textprocessor.domain.service.storage.StorageLocation;
-import org.conalton.textprocessor.domain.service.storage.StorageLocationResolver;
-import org.conalton.textprocessor.domain.service.storage.StorageProperties;
-import org.conalton.textprocessor.dto.internal.PresignedUrlData;
+import org.conalton.textprocessor.domain.storage.config.StorageProperties;
+import org.conalton.textprocessor.domain.storage.port.FileStoragePort;
+import org.conalton.textprocessor.domain.storage.service.StorageLocationResolver;
+import org.conalton.textprocessor.domain.storage.types.PresignedUrlData;
+import org.conalton.textprocessor.domain.storage.types.StorageLocation;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.PresignedPutObjectRequest;
