@@ -1,9 +1,9 @@
 package org.conalton.textprocessor.infrastructure.aws.config;
 
 import java.net.URI;
-import org.conalton.textprocessor.domain.service.storage.FileStoragePort;
-import org.conalton.textprocessor.domain.service.storage.StorageLocationResolver;
-import org.conalton.textprocessor.domain.service.storage.StorageProperties;
+import org.conalton.textprocessor.domain.storage.config.StorageProperties;
+import org.conalton.textprocessor.domain.storage.port.FileStoragePort;
+import org.conalton.textprocessor.domain.storage.service.StorageLocationResolver;
 import org.conalton.textprocessor.infrastructure.aws.properties.AwsProperties;
 import org.conalton.textprocessor.infrastructure.aws.properties.AwsS3Properties;
 import org.conalton.textprocessor.infrastructure.aws.s3.S3FileStorageAdapter;
