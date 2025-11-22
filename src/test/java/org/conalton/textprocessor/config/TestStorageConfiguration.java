@@ -1,10 +1,10 @@
 package org.conalton.textprocessor.config;
 
-import org.conalton.textprocessor.domain.service.storage.FileStoragePort;
-import org.conalton.textprocessor.domain.service.storage.StorageLocation;
-import org.conalton.textprocessor.domain.service.storage.StorageLocationResolver;
-import org.conalton.textprocessor.domain.service.storage.StorageProperties;
-import org.conalton.textprocessor.dto.internal.PresignedUrlData;
+import org.conalton.textprocessor.domain.storage.config.StorageProperties;
+import org.conalton.textprocessor.domain.storage.port.FileStoragePort;
+import org.conalton.textprocessor.domain.storage.service.StorageLocationResolver;
+import org.conalton.textprocessor.domain.storage.types.PresignedUrlData;
+import org.conalton.textprocessor.domain.storage.types.StorageLocation;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
