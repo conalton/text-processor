@@ -19,3 +19,5 @@ cloud:
   storage:
     tasks-bucket-name: test-tasks-bucket
     presigned-url-expiration-minutes: 15
+  messaging:
+    enabled: false

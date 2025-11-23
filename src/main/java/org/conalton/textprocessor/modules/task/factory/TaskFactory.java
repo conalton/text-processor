@@ -11,7 +11,7 @@ public class TaskFactory {
   public static Task create() {
     Task task = new Task();
     task.setId(UuidCreator.getTimeOrderedEpoch().toString());
-    task.setStatus(TaskStatus.PENDING);
+    task.setStatus(TaskStatus.NEW);
     task.setCreatedAt(Instant.now());
     task.markAsNew();
     return task;

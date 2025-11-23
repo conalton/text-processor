@@ -34,6 +34,9 @@ cloud:
   storage:
     tasks-bucket-name: ${TASK_UPLOADS_LOCATION}
     presigned-url-expiration-minutes: 15
+  messaging:
+    enabled: true
+    file-uploaded-queue-name: ${FILE_UPLOADED_QUEUE_NAME}
   aws:
     enabled: true
     access-key: ${AWS_ACCESS_KEY}
@@ -44,4 +47,7 @@ cloud:
         public-endpoint: http://${AWS_HOST}:${LOCALSTACK_PORT}
         path-style-access-enabled: true
     sqs:
-        queue-name: ${TASK_QUEUE_NAME}
+        # default for all queues
+        max-concurrent-messages: 3
+        max-messages-per-poll: 2
+        max-delay-between-polls: 1000ms
