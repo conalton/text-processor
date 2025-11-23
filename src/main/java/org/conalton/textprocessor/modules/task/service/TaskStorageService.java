@@ -13,6 +13,7 @@ import org.conalton.textprocessor.modules.task.entity.TaskStatus;
 import org.conalton.textprocessor.modules.task.repository.TaskRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -80,6 +81,12 @@ public class TaskStorageService {
         .filter(task -> task.getStatus() == TaskStatus.NEW)
         .forEach(task -> task.setStatus(TaskStatus.FILE_UPLOADED));
 
-    taskRepository.saveAll(tasks);
+    try {
+      taskRepository.saveAll(tasks);
+      taskRepository.flush();
+    } catch (OptimisticLockingFailureException ex) {
+      log.warn("Failed to update tasks due to optimistic locking, will retry on next event", ex);
+      throw ex;
+    }
   }
 }

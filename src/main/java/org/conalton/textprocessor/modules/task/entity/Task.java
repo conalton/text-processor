@@ -30,6 +30,10 @@ public final class Task implements Persistable<String> {
   @Column(columnDefinition = "JSON")
   private String meta;
 
+  @Version
+  @Column(name = "version", nullable = false)
+  private Long version;
+
   @Transient private boolean isNew = false;
 
   public String getId() {
@@ -101,5 +105,13 @@ public final class Task implements Persistable<String> {
   @PostPersist
   void markNotNew() {
     this.isNew = false;
+  }
+
+  public Long getVersion() {
+    return version;
+  }
+
+  private void setVersion(Long version) {
+    this.version = version;
   }
 }
