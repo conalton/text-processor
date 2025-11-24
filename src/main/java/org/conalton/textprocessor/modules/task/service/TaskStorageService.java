@@ -9,7 +9,6 @@ import org.conalton.textprocessor.domain.storage.service.StorageLocationResolver
 import org.conalton.textprocessor.domain.storage.types.FileStorageItem;
 import org.conalton.textprocessor.domain.storage.types.StorageLocation;
 import org.conalton.textprocessor.modules.task.entity.Task;
-import org.conalton.textprocessor.modules.task.entity.TaskStatus;
 import org.conalton.textprocessor.modules.task.repository.TaskRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,12 +21,16 @@ import org.springframework.transaction.annotation.Transactional;
 public class TaskStorageService {
   private final TaskRepository taskRepository;
   private final StorageLocationResolver storageLocationResolver;
+  private final TaskStatusFlowService taskStatusFlowService;
   private static final Logger log = LoggerFactory.getLogger(TaskStorageService.class);
 
   public TaskStorageService(
-      TaskRepository taskRepository, StorageLocationResolver storageLocationResolver) {
+      TaskRepository taskRepository,
+      StorageLocationResolver storageLocationResolver,
+      TaskStatusFlowService taskStatusFlowService) {
     this.taskRepository = taskRepository;
     this.storageLocationResolver = storageLocationResolver;
+    this.taskStatusFlowService = taskStatusFlowService;
   }
 
   @Transactional
@@ -66,11 +69,11 @@ public class TaskStorageService {
     }
 
     List<Task> unprocessedTasks =
-        tasks.stream().filter(task -> task.getStatus() != TaskStatus.NEW).toList();
+        tasks.stream().filter(task -> !taskStatusFlowService.canMarkFileUploaded(task)).toList();
 
     if (!unprocessedTasks.isEmpty()) {
       log.warn(
-          "Found {} tasks that are not in NEW status while processing file uploads: {}",
+          "Found {} tasks that cannot be processed for the incoming file uploads: {}",
           unprocessedTasks.size(),
           unprocessedTasks.stream()
               .map(task -> String.format("Task{id=%s, status=%s}", task.getId(), task.getStatus()))
@@ -78,8 +81,8 @@ public class TaskStorageService {
     }
 
     tasks.stream()
-        .filter(task -> task.getStatus() == TaskStatus.NEW)
-        .forEach(task -> task.setStatus(TaskStatus.FILE_UPLOADED));
+        .filter(task -> taskStatusFlowService.canMarkFileUploaded(task))
+        .forEach(task -> taskStatusFlowService.markTaskAsFileUploaded(task));
 
     try {
       taskRepository.saveAll(tasks);

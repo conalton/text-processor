@@ -2,6 +2,8 @@ package org.conalton.textprocessor.modules.task.entity;
 
 import jakarta.persistence.*;
 import java.time.Instant;
+import org.conalton.textprocessor.common.annotation.Internal;
+import org.conalton.textprocessor.modules.task.service.TaskStatusFlowService;
 import org.springframework.data.domain.Persistable;
 
 @Entity
@@ -64,6 +66,7 @@ public final class Task implements Persistable<String> {
     return status;
   }
 
+  @Internal(allowedBy = TaskStatusFlowService.class)
   public void setStatus(TaskStatus status) {
     this.status = status;
   }
@@ -97,7 +100,7 @@ public final class Task implements Persistable<String> {
     return isNew;
   }
 
-  public void markAsNew() {
+  public void markEntityAsNew() {
     this.isNew = true;
   }
 
