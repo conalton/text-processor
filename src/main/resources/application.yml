@@ -51,3 +51,13 @@ cloud:
         max-concurrent-messages: 3
         max-messages-per-poll: 2
         max-delay-between-polls: 1000ms
+
+modules:
+  task:
+    worker:
+      num-workers: ${TASK_MODULE_NUM_WORKERS}
+      start-delay-range-ms-min: ${TASK_MODULE_WORKER_START_DELAY_RANGE_MS_MIN}
+      start-delay-range-ms-max: ${TASK_MODULE_WORKER_START_DELAY_RANGE_MS_MAX}
+      loop-delay-range-ms-min: ${TASK_MODULE_WORKER_LOOP_DELAY_MIN}
+      loop-delay-range-ms-max: ${TASK_MODULE_WORKER_LOOP_DELAY_MAX}
+      shutdown-delay-ms: ${TASK_MODULE_WORKER_SHUTDOWN_DELAY}
