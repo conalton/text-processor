@@ -21,3 +21,14 @@ cloud:
     presigned-url-expiration-minutes: 15
   messaging:
     enabled: false
+
+
+modules:
+  task:
+    worker:
+      num-workers: 2
+      start-delay-range-ms-min: 150
+      start-delay-range-ms-max: 1200
+      loop-delay-range-ms-min: 200
+      loop-delay-range-ms-max: 400
+      shutdown-delay-ms: 5000
