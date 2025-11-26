@@ -41,6 +41,7 @@ dependencies {
 
 tasks.test {
     useJUnitPlatform()
+    systemProperty("api.version", "1.44")
 }
 
 tasks.named<org.springframework.boot.gradle.tasks.run.BootRun>("bootRun") {
