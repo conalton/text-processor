@@ -1,6 +1,5 @@
 package org.conalton.textprocessor.infrastructure.aws.sqs;
 
-import io.awspring.cloud.sqs.listener.MessageListener;
 import io.awspring.cloud.sqs.listener.SqsMessageListenerContainer;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -8,17 +7,18 @@ import org.conalton.textprocessor.domain.messaging.interfaces.MessageHandler;
 import org.conalton.textprocessor.domain.messaging.port.MessageSubscriptionPort;
 import org.conalton.textprocessor.domain.messaging.types.MessageEnvelope;
 import org.conalton.textprocessor.infrastructure.aws.properties.AwsSqsProperties;
-import org.springframework.context.SmartLifecycle;
-import org.springframework.messaging.Message;
-import org.springframework.util.Assert;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.DisposableBean;
 import software.amazon.awssdk.services.sqs.SqsAsyncClient;
 
-public class SqsMessageSubscriptionAdapter implements MessageSubscriptionPort, SmartLifecycle {
+public class SqsMessageSubscriptionAdapter implements MessageSubscriptionPort, DisposableBean {
+
+  private static final Logger log = LoggerFactory.getLogger(SqsMessageSubscriptionAdapter.class);
 
   private final SqsAsyncClient sqsAsyncClient;
   private final AwsSqsProperties sqsProperties;
   private final List<SqsMessageListenerContainer<String>> containers = new CopyOnWriteArrayList<>();
-  private volatile boolean running;
 
   public SqsMessageSubscriptionAdapter(
       SqsAsyncClient sqsAsyncClient, AwsSqsProperties sqsProperties) {
@@ -28,39 +28,45 @@ public class SqsMessageSubscriptionAdapter implements MessageSubscriptionPort, S
 
   @Override
   public void subscribe(String queueName, MessageHandler handler) {
-    Assert.hasText(queueName, "Queue name must not be empty");
-
     SqsMessageListenerContainer<String> container = buildContainer(queueName, handler);
-    containers.add(container);
 
-    if (running) {
+    try {
       container.start();
+      containers.add(container);
+      log.info("Subscribed to SQS queue: {}", queueName);
+    } catch (Exception ex) {
+      try {
+        container.stop();
+      } catch (Exception stopEx) {
+        log.warn("Failed to stop container after failed start", stopEx);
+      }
+
+      throw new IllegalStateException("Failed to start container for queue " + queueName, ex);
     }
   }
 
   @Override
-  public void start() {
-    containers.forEach(SqsMessageListenerContainer::start);
-    running = true;
+  public void destroy() {
+    containers.forEach(
+        container -> {
+          try {
+            container.stop();
+          } catch (Exception ex) {
+            log.warn("Failed to stop container for queues: {}", container.getQueueNames(), ex);
+          }
+        });
+
+    containers.clear();
   }
 
-  @Override
-  public void stop() {
-    containers.forEach(SqsMessageListenerContainer::stop);
-    running = false;
-  }
-
-  @Override
-  public boolean isRunning() {
-    return running;
-  }
-
-  private SqsMessageListenerContainer<String> buildContainer(
+  protected SqsMessageListenerContainer<String> buildContainer(
       String queueName, MessageHandler handler) {
     return SqsMessageListenerContainer.<String>builder()
         .sqsAsyncClient(sqsAsyncClient)
         .queueNames(queueName)
-        .messageListener(new SqsMessageDelegate(handler))
+        .messageListener(
+            message ->
+                handler.handle(new MessageEnvelope(message.getPayload(), message.getHeaders())))
         .configure(
             options ->
                 options
@@ -68,19 +74,5 @@ public class SqsMessageSubscriptionAdapter implements MessageSubscriptionPort, S
                     .maxMessagesPerPoll(sqsProperties.getMaxMessagesPerPoll())
                     .maxDelayBetweenPolls(sqsProperties.getMaxDelayBetweenPolls()))
         .build();
-  }
-
-  private static class SqsMessageDelegate implements MessageListener<String> {
-
-    private final MessageHandler handler;
-
-    SqsMessageDelegate(MessageHandler handler) {
-      this.handler = handler;
-    }
-
-    @Override
-    public void onMessage(Message<String> message) {
-      handler.handle(new MessageEnvelope(message.getPayload(), message.getHeaders()));
-    }
   }
 }
