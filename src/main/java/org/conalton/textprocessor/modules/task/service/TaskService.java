@@ -25,16 +25,19 @@ public class TaskService {
   private final FileStoragePort fileStorage;
   private final DateBasedKeyGenerator keyGenerator;
   private final ConstraintViolationClassifier constraintViolationClassifier;
+  private final TaskFactory taskFactory;
 
   public TaskService(
       TaskRepository taskRepository,
       FileStoragePort fileStorage,
       DateBasedKeyGenerator keyGenerator,
-      ConstraintViolationClassifier constraintViolationClassifier) {
+      ConstraintViolationClassifier constraintViolationClassifier,
+      TaskFactory taskFactory) {
     this.taskRepository = taskRepository;
     this.fileStorage = fileStorage;
     this.keyGenerator = keyGenerator;
     this.constraintViolationClassifier = constraintViolationClassifier;
+    this.taskFactory = taskFactory;
   }
 
   @Retryable(
@@ -44,7 +47,7 @@ public class TaskService {
       backoff = @Backoff(delay = 0))
   @Transactional
   public PresignedUpload createTask() {
-    Task task = TaskFactory.create();
+    Task task = taskFactory.create();
     String uploadPath =
         keyGenerator.generateDateBasedKey(task.getId(), StorageLocation.TASKS.getUploadPrefix());
 
