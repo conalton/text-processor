@@ -90,19 +90,13 @@ Start MySQL and LocalStack using Docker Compose:
 docker-compose up -d
 ```
 
-Wait a few seconds for services to be ready, then initialize the AWS infrastructure:
-
-```bash
-./run.sh infra
-```
-
 This command creates:
 - S3 bucket: `text-processor-uploads`
 - SQS queue: `text-processor-tasks`
 
-### 4. Run Database Migrations
+### 4. Database Migrations
 
-Ensure your database schema is up to date. The application uses Hibernate with `validate` mode, so you may need to create tables manually or use a migration tool like Flyway.
+The application uses Flyway to automatically apply database migrations on startup, so there is no need for any manual steps to keep the schema up to date. If you want to add a new migration script, run: ```bash ./run.sh migration-add ``` This will prompt you for a readable migration name (e.g., add_users_table) and create a file named `V<timestamp>__<sanitized_name>.sql` inside `src/main/resources/db/migration`.
 
 ### 5. Run the Application
 
@@ -162,24 +156,45 @@ Creates a new task and generates a presigned URL for file upload.
 txt-cleaner/
 ├── src/
 │   ├── main/
-│   │   ├── java/org/conalton/textprocessor/
-│   │   │   ├── controller/       # REST controllers
-│   │   │   ├── service/          # Business logic
-│   │   │   ├── domain/           # Domain services & factories
-│   │   │   ├── repository/       # Data access layer
-│   │   │   ├── entity/           # JPA entities
-│   │   │   ├── dto/              # Data transfer objects
-│   │   │   ├── config/           # Spring configuration
-│   │   │   ├── infrastructure/   # Cloud & DB infrastructure
-│   │   │   └── AppApplication.java
+│   │   ├── java/
+│   │   │   └── org/
+│   │   │       └── conalton/
+│   │   │           └── textprocessor/
+│   │   │               ├── AppApplication.java                 # Spring Boot entry point
+│   │   │               ├── common/
+│   │   │               │   └── annotation/                     # e.g. Internal.java
+│   │   │               ├── config/                             # Configuration / test setup (e.g. MysqlContainerConfig)
+│   │   │               ├── domain/
+│   │   │               │   ├── messaging/                      # Messaging interfaces, ports, message envelope
+│   │   │               │   └── storage/                        # Storage properties, port, services (KeyGenerator, etc.)
+│   │   │               ├── infrastructure/
+│   │   │               │   ├── aws/                            # AWS integrations (S3, SQS, property configs)
+│   │   │               │   └── persistence/                    # DB-specific constraints and classifiers
+│   │   │               ├── modules/
+│   │   │               │   └── task/                           # Task domain: controllers, services, entities, listeners
+│   │   │               └── web/
+│   │   │                   ├── advice/                         # Exception handlers, controller advices
+│   │   │                   └── response/                       # Shared response payloads (ApiResponse, ErrorResponse)
 │   │   └── resources/
 │   │       ├── application.yml
-│   │       └── application-dev.yml
-│   └── test/                     # Unit and integration tests
-├── build.gradle.kts              # Gradle build configuration
-├── docker-compose.yaml           # Infrastructure services
-├── run.sh                        # Helper script for common tasks
-└── README.MD                     # This file
+│   │       ├── application-dev.yml
+│   │       └── db/
+│   │           └── migration/                                  # Flyway SQL migration scripts
+│   └── test/
+│       ├── java/
+│       │   └── org/
+│       │       └── conalton/
+│       │           └── textprocessor/
+│       │               ├── config/                             # e.g. container config or test configuration beans
+│       │               ├── modules/
+│       │               │   └── task/                           # Tests for task controllers, services, etc.
+│       │               └── ...                                # Other test packages
+│       └── resources/
+│           └── ...                                            # Test resources if needed
+├── build.gradle.kts                                            # Gradle build configuration
+├── docker-compose.yaml                                          # Infrastructure services
+├── run.sh                                                       # Helper script for common tasks
+└── README.md                                                    # Project documentation
 ```
 
 ## Development
@@ -267,13 +282,9 @@ Ensure MySQL is ready before starting the application:
 docker-compose ps
 ```
 
-### LocalStack Infrastructure Not Created
-
-Re-run the infrastructure setup:
-
-```bash
-./run.sh infra
-```
+## Roadmap 
+- Consider rewriting (or partially migrating) the codebase to Kotlin to enhance developer productivity and leverage more modern language features.
+- Expand file processing capabilities by integrating Large Language Model (LLM) services with Spring Cloud to enable more advanced text transformations and analysis.
 
 ## License
 
