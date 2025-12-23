@@ -10,6 +10,9 @@ resilience4j:
         timeout-duration: 0s
 
 spring:
+  threads:
+    virtual:
+      enabled: true
   datasource:
     hikari:
       maximum-pool-size: 10

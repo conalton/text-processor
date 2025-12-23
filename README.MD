@@ -20,7 +20,7 @@ This is a pet project that demonstrates a modern Spring Boot microservice with t
 
 ## Tech Stack
 
-- **Java 17**
+- **Java 21**
 - **Spring Boot 3.5.7**
 - **Spring Data JPA** with Hibernate
 - **MySQL 8.0.41**
@@ -35,7 +35,7 @@ This is a pet project that demonstrates a modern Spring Boot microservice with t
 
 ## Prerequisites
 
-- Java 17 or higher
+- Java 21 or higher
 - Docker and Docker Compose
 - Bash shell (for running scripts on Linux/WSL)
 
