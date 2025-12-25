@@ -1,8 +1,8 @@
 plugins {
     id("java")
-    id("org.springframework.boot") version "3.5.7"
+    id("org.springframework.boot") version "4.0.0"
     id("io.spring.dependency-management") version "1.1.7"
-    id("com.diffplug.spotless") version "6.25.0"
+    id("com.diffplug.spotless") version "8.1.0"
 }
 
 group = "org.example"
@@ -13,25 +13,26 @@ repositories {
 }
 
 dependencies {
-    implementation("org.springframework.boot:spring-boot-starter-web")
-    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
-    implementation("io.github.resilience4j:resilience4j-spring-boot3:2.3.0")
-    implementation("com.github.f4b6a3:uuid-creator:6.0.0")
-    implementation("com.vladmihalcea:hibernate-types-60:2.21.1")
-    implementation("org.springframework.boot:spring-boot-starter-validation")
-    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.14")
+    implementation(platform("io.awspring.cloud:spring-cloud-aws-dependencies:4.0.0-M1"))
 
+    implementation("org.springframework.boot:spring-boot-starter-web")
+    implementation("org.springframework.boot:spring-boot-starter-validation")
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:3.0.0")
+
+    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.flywaydb:flyway-core")
     implementation("org.flywaydb:flyway-mysql")
-
-    implementation(platform("io.awspring.cloud:spring-cloud-aws-dependencies:3.1.1"))
+    runtimeOnly("com.mysql:mysql-connector-j")
 
     implementation("io.awspring.cloud:spring-cloud-aws-starter-s3")
     implementation("io.awspring.cloud:spring-cloud-aws-starter-sqs")
 
-    runtimeOnly("com.mysql:mysql-connector-j")
+    implementation("io.github.resilience4j:resilience4j-spring-boot3:2.3.0")
+    implementation("com.github.f4b6a3:uuid-creator:6.1.1")
+
     developmentOnly("org.springframework.boot:spring-boot-devtools")
 
+    testImplementation(platform("org.testcontainers:testcontainers-bom:1.21.4"))
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.boot:spring-boot-testcontainers")
     testImplementation("org.testcontainers:junit-jupiter")
@@ -42,6 +43,11 @@ dependencies {
 tasks.test {
     useJUnitPlatform()
     systemProperty("api.version", "1.44")
+}
+
+tasks.withType<JavaCompile> {
+    options.compilerArgs.add("-Xlint:deprecation")
+    options.compilerArgs.add("-Xlint:unchecked")
 }
 
 tasks.named<org.springframework.boot.gradle.tasks.run.BootRun>("bootRun") {
@@ -58,9 +64,19 @@ java {
     }
 }
 
+dependencyLocking {
+    lockAllConfigurations()
+}
+
+buildscript {
+    configurations.classpath {
+        resolutionStrategy.activateDependencyLocking()
+    }
+}
+
 spotless {
     java {
-        googleJavaFormat("1.22.0")
+        googleJavaFormat("1.33.0")
         removeUnusedImports()
         trimTrailingWhitespace()
         endWithNewline()
