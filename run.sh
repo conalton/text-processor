@@ -2,7 +2,7 @@
 set -euo pipefail
 
 if [[ $# -ne 1 ]]; then
-  echo "Usage: $0 {debug|test|migration-add|lock}"
+  echo "Usage: $0 {debug|test|migration-add|lock|format}"
   exit 1
 fi
 
@@ -25,6 +25,10 @@ case "$1" in
     echo "Refreshing Gradle dependency locks..."
     ./gradlew dependencies --write-locks --refresh-dependencies
     ;;
+  format)
+      echo "Applying Spotless code formatting..."
+      ./gradlew spotlessApply
+      ;;
   migration-add)
     read -rp "Enter migration name (e.g., add_users_table): " MIGRATION_NAME
     if [[ -z "${MIGRATION_NAME// }" ]]; then
@@ -58,7 +62,7 @@ case "$1" in
     ;;
   *)
     echo "Unknown mode: $1"
-    echo "Allowed values: debug, test, migration-add, lock"
+    echo "Allowed values: debug, test, migration-add, lock, format"
     exit 1
     ;;
 esac
