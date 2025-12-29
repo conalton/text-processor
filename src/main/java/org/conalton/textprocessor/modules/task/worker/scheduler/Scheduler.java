@@ -119,7 +119,7 @@ public class Scheduler implements SmartLifecycle {
   }
 
   protected void runWorker(int delayMin, int delayMax) {
-    log.info("Task-worker [{}] started.", Thread.currentThread().getId());
+    log.info("Task-worker [{}] started.", Thread.currentThread().threadId());
 
     while (!Thread.currentThread().isInterrupted()) {
       if (!running) {

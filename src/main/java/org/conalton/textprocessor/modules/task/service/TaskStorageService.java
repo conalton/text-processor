@@ -13,7 +13,6 @@ import org.conalton.textprocessor.modules.task.repository.TaskRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.OptimisticLockingFailureException;
-import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,7 +33,7 @@ public class TaskStorageService {
   }
 
   @Transactional
-  public void processFilesUploads(@NonNull List<FileStorageItem> files) {
+  public void processFilesUploads(List<FileStorageItem> files) {
     if (files.isEmpty()) {
       return;
     }
@@ -48,7 +47,7 @@ public class TaskStorageService {
     markTaskAsProcessingByUploadPaths(normalizedUploadPaths);
   }
 
-  private Set<String> prepareFilesLocations(@NonNull List<FileStorageItem> files) {
+  private Set<String> prepareFilesLocations(List<FileStorageItem> files) {
     String tasksBucket = storageLocationResolver.resolveStorageBucket(StorageLocation.TASKS);
 
     return files.stream()
@@ -62,7 +61,7 @@ public class TaskStorageService {
         .collect(Collectors.toCollection(LinkedHashSet::new));
   }
 
-  private void markTaskAsProcessingByUploadPaths(@NonNull Set<String> paths) {
+  private void markTaskAsProcessingByUploadPaths(Set<String> paths) {
     List<Task> tasks = taskRepository.findAllBySourcePathIn(paths);
     if (tasks.isEmpty()) {
       return;
