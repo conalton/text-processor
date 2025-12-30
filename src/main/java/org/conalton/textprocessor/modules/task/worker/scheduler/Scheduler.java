@@ -1,9 +1,6 @@
 package org.conalton.textprocessor.modules.task.worker.scheduler;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadLocalRandom;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import org.conalton.textprocessor.modules.task.worker.config.WorkerProperties;
@@ -35,75 +32,53 @@ public class Scheduler implements SmartLifecycle {
     int loopDelayMax = config.getLoopDelayRangeMsMax();
     int numWorkers = config.getNumWorkers();
 
-    ExecutorService localExecutor;
-
     lifecycleLock.lock();
+
     try {
       if (running) {
         return;
       }
-      running = true;
-      localExecutor = Executors.newFixedThreadPool(numWorkers);
-      executor = localExecutor;
-    } finally {
-      lifecycleLock.unlock();
-    }
 
-    log.info("Scheduler starting with {} workers", numWorkers);
+      log.info("Scheduler starting with {} workers", numWorkers);
 
-    try {
+      Thread.Builder builder = Thread.ofVirtual().name("task-scheduler-", 0);
+
+      executor = Executors.newThreadPerTaskExecutor(builder.factory());
+
       for (int i = 0; i < numWorkers; i++) {
-        localExecutor.submit(
+        executor.submit(
             () -> {
               long delay = ThreadLocalRandom.current().nextLong(min, max + 1);
+
               try {
                 TimeUnit.MILLISECONDS.sleep(delay);
               } catch (InterruptedException ex) {
                 Thread.currentThread().interrupt();
                 return;
               }
+
               runWorker(loopDelayMin, loopDelayMax);
             });
       }
+
+      running = true;
     } catch (Exception ex) {
-      log.error("Failed to submit worker task. Rolling back scheduler start.", ex);
-      stop();
+      log.error("Something went wrong. Roll back the ExecutorService state.", ex);
+      doStop();
       throw ex;
+    } finally {
+      lifecycleLock.unlock();
     }
   }
 
   @Override
   public void stop() {
-    ExecutorService toShutdown;
-
     lifecycleLock.lock();
 
     try {
-      if (!running) {
-        return;
-      }
-
-      running = false;
-      toShutdown = executor;
-      executor = null;
+      doStop();
     } finally {
       lifecycleLock.unlock();
-    }
-
-    if (toShutdown == null) {
-      return;
-    }
-
-    log.info("Scheduler stopping");
-    toShutdown.shutdownNow();
-
-    try {
-      if (!toShutdown.awaitTermination(config.getShutdownDelayMs(), TimeUnit.MILLISECONDS)) {
-        log.warn("Workers did not terminate within timeout");
-      }
-    } catch (InterruptedException ex) {
-      Thread.currentThread().interrupt();
-      log.warn("Interrupted while waiting for workers to stop", ex);
     }
   }
 
@@ -119,7 +94,7 @@ public class Scheduler implements SmartLifecycle {
   }
 
   protected void runWorker(int delayMin, int delayMax) {
-    log.info("Task-worker [{}] started.", Thread.currentThread().threadId());
+    log.info("Task-worker [{}] started.", Thread.currentThread().getName());
 
     while (!Thread.currentThread().isInterrupted()) {
       if (!running) {
@@ -134,5 +109,20 @@ public class Scheduler implements SmartLifecycle {
         break;
       }
     }
+  }
+
+  private void doStop() {
+    ExecutorService toShutdown = executor;
+
+    executor = null;
+    running = false;
+
+    if (toShutdown == null) {
+      log.info("ExecutorService is already null.");
+      return;
+    }
+
+    log.info("Scheduler stopping");
+    toShutdown.shutdownNow();
   }
 }
