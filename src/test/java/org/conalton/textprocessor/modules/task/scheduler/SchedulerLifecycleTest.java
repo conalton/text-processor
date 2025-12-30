@@ -3,38 +3,38 @@ package org.conalton.textprocessor.modules.task.scheduler;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.CyclicBarrier;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import org.conalton.textprocessor.modules.task.worker.config.WorkerProperties;
 import org.conalton.textprocessor.modules.task.worker.scheduler.Scheduler;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.boot.test.context.ConfigDataApplicationContextInitializer;
 import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.context.annotation.Bean;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
 @ActiveProfiles("test")
-@ExtendWith(SpringExtension.class)
+@SpringJUnitConfig(
+    classes = SchedulerLifecycleTest.SchedulerTestConfig.class,
+    initializers = ConfigDataApplicationContextInitializer.class)
 class SchedulerLifecycleTest {
 
-  @Autowired private CountDownLatch workerStartedLatch;
+  private SchedulerTestConfig.TestScheduler scheduler;
 
-  @Autowired private SchedulerTestConfig.TestScheduler scheduler;
+  @Autowired private WorkerProperties workerProps;
 
   @BeforeEach
   void setUp() {
-    scheduler.resetWorkerLatch(1);
+    scheduler = new SchedulerTestConfig.TestScheduler(workerProps);
   }
 
   @AfterEach
   void tearDown() {
     scheduler.stop();
+    scheduler = null;
   }
 
   @Test
@@ -77,10 +77,16 @@ class SchedulerLifecycleTest {
         };
 
     var executor = Executors.newFixedThreadPool(2);
+
+    Future<?> startTaskF = executor.submit(startTask);
+    Future<?> stopTaskF = executor.submit(stopTask);
+
     try {
-      executor.submit(startTask);
-      executor.submit(stopTask);
       assertThat(done.await(5, TimeUnit.SECONDS)).isTrue();
+
+      startTaskF.get(5, TimeUnit.SECONDS);
+      stopTaskF.get(5, TimeUnit.SECONDS);
+
     } finally {
       executor.shutdownNow();
     }
@@ -99,7 +105,10 @@ class SchedulerLifecycleTest {
     CountDownLatch latch = scheduler.getWorkerLatch();
     scheduler.start();
 
-    assertThat(latch.await(2, TimeUnit.SECONDS))
+    long waitTimeout =
+        (workerProps.getStartDelayRangeMsMax() + workerProps.getLoopDelayRangeMsMax()) * 4L;
+
+    assertThat(latch.await(waitTimeout, TimeUnit.MILLISECONDS))
         .as("at least one worker should execute runWorker()")
         .isTrue();
   }
@@ -112,40 +121,15 @@ class SchedulerLifecycleTest {
   }
 
   @TestConfiguration
+  @EnableConfigurationProperties(WorkerProperties.class)
   static class SchedulerTestConfig {
-
-    @Bean
-    WorkerProperties workerProperties() {
-      WorkerProperties props = new WorkerProperties();
-      props.setNumWorkers(2);
-      props.setStartDelayRangeMsMin(10);
-      props.setStartDelayRangeMsMax(20);
-      props.setLoopDelayRangeMsMin(50);
-      props.setLoopDelayRangeMsMax(80);
-      props.setShutdownDelayMs(500);
-      return props;
-    }
-
-    @Bean
-    CountDownLatch workerStartedLatch(WorkerProperties props) {
-      return new CountDownLatch(1);
-    }
-
-    @Bean
-    SchedulerTestConfig.TestScheduler scheduler(WorkerProperties props) {
-      return new TestScheduler(props);
-    }
 
     static class TestScheduler extends Scheduler {
 
-      private volatile CountDownLatch workerLatch = new CountDownLatch(0);
+      private final CountDownLatch workerLatch = new CountDownLatch(1);
 
       TestScheduler(WorkerProperties props) {
         super(props);
-      }
-
-      void resetWorkerLatch(int count) {
-        this.workerLatch = new CountDownLatch(count);
       }
 
       CountDownLatch getWorkerLatch() {
