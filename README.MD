@@ -21,7 +21,7 @@ This is a pet project that demonstrates a modern Spring Boot microservice with t
 ## Tech Stack
 
 - **Java 21**
-- **Spring Boot 3.5.7**
+- **Spring Boot 4.0.0**
 - **Spring Data JPA** with Hibernate
 - **MySQL 8.0.41**
 - **AWS SDK** (S3, SQS) via Spring Cloud AWS
