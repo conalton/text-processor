@@ -14,7 +14,7 @@ public class StorageLocationResolver {
 
   public String resolveStorageBucket(StorageLocation location) {
     return switch (location) {
-      case TASKS -> storageProperties.getTasksBucketName();
+      case TASKS_PRESIGNED_UPLOADS, TASKS_UPLOADED_FILES -> storageProperties.getTasksBucketName();
     };
   }
 }

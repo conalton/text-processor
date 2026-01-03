@@ -7,7 +7,7 @@ import org.conalton.textprocessor.domain.messaging.port.MessageSubscriptionPort;
 import org.conalton.textprocessor.domain.messaging.types.MessageEnvelope;
 import org.conalton.textprocessor.domain.storage.types.FileStorageItem;
 import org.conalton.textprocessor.modules.task.config.MessagingConfig;
-import org.conalton.textprocessor.modules.task.service.TaskStorageService;
+import org.conalton.textprocessor.modules.task.service.TaskPresignedFilesProcessorService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -24,13 +24,13 @@ public class FileStorageQueueListener implements MessageHandler {
   private final MessageSubscriptionPort subscriptionPort;
   private final String fileUploadedQueueName;
   private final FileStorageEventListenerPort fileStorageEventListenerPort;
-  private final TaskStorageService fileStorageService;
+  private final TaskPresignedFilesProcessorService fileStorageService;
 
   public FileStorageQueueListener(
       MessageSubscriptionPort subscriptionPort,
       MessagingConfig messagingConfig,
       FileStorageEventListenerPort fileStorageEventListenerPort,
-      TaskStorageService fileStorageService) {
+      TaskPresignedFilesProcessorService fileStorageService) {
     this.subscriptionPort = subscriptionPort;
     this.fileUploadedQueueName = messagingConfig.getFileUploadedQueueName();
     this.fileStorageEventListenerPort = fileStorageEventListenerPort;

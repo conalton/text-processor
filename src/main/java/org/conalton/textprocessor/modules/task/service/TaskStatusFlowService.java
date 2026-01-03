@@ -17,4 +17,15 @@ public class TaskStatusFlowService {
   public boolean canMarkFileUploaded(Task task) {
     return task.getStatus() == TaskStatus.NEW;
   }
+
+  public TaskStatus getTaskStatusWhenFiledUploadIsPending() {
+    return TaskStatus.NEW;
+  }
+
+  public TaskStatus getTaskNextTaskStatus(TaskStatus status) {
+    return switch (status) {
+      case TaskStatus.NEW -> TaskStatus.FILE_UPLOADED;
+      default -> null;
+    };
+  }
 }
