@@ -49,10 +49,12 @@ public class TaskService {
   public PresignedUpload createTask() {
     Task task = taskFactory.create();
     String uploadPath =
-        keyGenerator.generateDateBasedKey(task.getId(), StorageLocation.TASKS.getUploadPrefix());
+        keyGenerator.generateDateBasedKey(
+            task.getId(), StorageLocation.TASKS_PRESIGNED_UPLOADS.getUploadPrefix());
 
     PresignedUrlData fileData =
-        this.fileStorage.generatePresignedUploadUrl(StorageLocation.TASKS, uploadPath);
+        this.fileStorage.generatePresignedUploadUrl(
+            StorageLocation.TASKS_PRESIGNED_UPLOADS, uploadPath);
     task.setSourcePath(fileData.key());
     taskRepository.saveAndFlush(task);
 

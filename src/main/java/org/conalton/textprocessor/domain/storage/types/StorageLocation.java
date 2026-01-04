@@ -1,7 +1,8 @@
 package org.conalton.textprocessor.domain.storage.types;
 
 public enum StorageLocation {
-  TASKS("tasks", "uploads");
+  TASKS_PRESIGNED_UPLOADS("tasks", "presigned-uploads"),
+  TASKS_UPLOADED_FILES("tasks", "uploaded-files");
 
   private final String description;
   private final String uploadPrefix;

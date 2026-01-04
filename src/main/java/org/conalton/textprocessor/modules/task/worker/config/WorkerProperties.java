@@ -9,17 +9,9 @@ import org.springframework.validation.annotation.Validated;
 @Validated
 @ConfigurationProperties(prefix = "modules.task.worker")
 public class WorkerProperties {
-  @Min(1)
-  @Max(12)
+  @Min(0)
+  @Max(24)
   private int numWorkers;
-
-  @Min(10)
-  @Max(2000)
-  private int startDelayRangeMsMin;
-
-  @Min(10)
-  @Max(2000)
-  private int startDelayRangeMsMax;
 
   @Min(100)
   @Max(5000)
@@ -28,15 +20,6 @@ public class WorkerProperties {
   @Min(100)
   @Max(5000)
   private int loopDelayRangeMsMax;
-
-  @Min(100)
-  @Max(5000)
-  private int shutdownDelayMs;
-
-  @AssertTrue(message = "startDelayRangeMsMax must be greater than startDelayRangeMsMin")
-  public boolean isStartDelayRangeValid() {
-    return startDelayRangeMsMax > startDelayRangeMsMin;
-  }
 
   @AssertTrue(message = "loopDelayRangeMsMax must be greater than loopDelayRangeMsMin")
   public boolean isLoopDelayRangeValid() {
@@ -49,22 +32,6 @@ public class WorkerProperties {
 
   public void setNumWorkers(int numWorkers) {
     this.numWorkers = numWorkers;
-  }
-
-  public int getStartDelayRangeMsMin() {
-    return startDelayRangeMsMin;
-  }
-
-  public void setStartDelayRangeMsMin(int startDelayRangeMsMin) {
-    this.startDelayRangeMsMin = startDelayRangeMsMin;
-  }
-
-  public int getStartDelayRangeMsMax() {
-    return startDelayRangeMsMax;
-  }
-
-  public void setStartDelayRangeMsMax(int startDelayRangeMsMax) {
-    this.startDelayRangeMsMax = startDelayRangeMsMax;
   }
 
   public int getLoopDelayRangeMsMin() {
@@ -81,13 +48,5 @@ public class WorkerProperties {
 
   public void setLoopDelayRangeMsMax(int loopDelayRangeMsMax) {
     this.loopDelayRangeMsMax = loopDelayRangeMsMax;
-  }
-
-  public int getShutdownDelayMs() {
-    return shutdownDelayMs;
-  }
-
-  public void setShutdownDelayMs(int shutdownDelayMs) {
-    this.shutdownDelayMs = shutdownDelayMs;
   }
 }

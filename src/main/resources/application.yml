@@ -20,6 +20,7 @@ spring:
       connection-timeout: 15000
       idle-timeout: 300000
       max-lifetime: 1800000
+      auto-commit: false
     url: jdbc:mysql://${MYSQL_HOST}:${MYSQL_PORT}/${MYSQL_DATABASE}?useSSL=false&allowPublicKeyRetrieval=true
     username: ${MYSQL_USER}
     password: ${MYSQL_PASSWORD}
@@ -27,10 +28,17 @@ spring:
   jpa:
     hibernate:
       ddl-auto: none
+    properties:
+      hibernate.jdbc.batch_size: 50
+      hibernate.order_inserts: true
+      hibernate.order_updates: true
+      hibernate.connection.provider_disables_autocommit: true
+      hibernate.jdbc.fetch_size: 150
+      jakarta.persistence.query.timeout: 2500
   flyway:
     enabled: true
     locations: classpath:db/migration
-    baseline-on-migrate: true
+    baseline-on-migrate: false
     table: migrations_history
 
 cloud:
@@ -55,12 +63,14 @@ cloud:
         max-messages-per-poll: 2
         max-delay-between-polls: 1000ms
 
+app:
+  async:
+    job-runner:
+      restartDelayMs: 2500
+
 modules:
   task:
     worker:
       num-workers: ${TASK_MODULE_NUM_WORKERS}
-      start-delay-range-ms-min: ${TASK_MODULE_WORKER_START_DELAY_RANGE_MS_MIN}
-      start-delay-range-ms-max: ${TASK_MODULE_WORKER_START_DELAY_RANGE_MS_MAX}
       loop-delay-range-ms-min: ${TASK_MODULE_WORKER_LOOP_DELAY_MIN}
       loop-delay-range-ms-max: ${TASK_MODULE_WORKER_LOOP_DELAY_MAX}
-      shutdown-delay-ms: ${TASK_MODULE_WORKER_SHUTDOWN_DELAY}

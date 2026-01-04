@@ -20,8 +20,12 @@ public final class Task implements Persistable<String> {
   private String resultPath;
 
   @Enumerated(EnumType.STRING)
-  @Column(nullable = false)
+  @Column(name = "status", nullable = false, length = 32)
   private TaskStatus status;
+
+  @Enumerated(EnumType.STRING)
+  @Column(name = "status_prev", length = 32)
+  private TaskStatus statusPrev;
 
   @Column(name = "created_at", nullable = false, updatable = false)
   private Instant createdAt;
@@ -31,6 +35,30 @@ public final class Task implements Persistable<String> {
 
   @Column(columnDefinition = "JSON")
   private String meta;
+
+  @Column(name = "attempt_current", nullable = false)
+  private Integer attemptCurrent = 0;
+
+  @Column(name = "attempt_max", nullable = false)
+  private Integer attemptMax = 3;
+
+  @Column(name = "next_attempt_at")
+  private Instant nextAttemptAt;
+
+  @Column(name = "priority", nullable = false)
+  private Integer priority = 0;
+
+  @Column(name = "locked_by")
+  private String lockedBy;
+
+  @Column(name = "locked_at")
+  private Instant lockedAt;
+
+  @Column(name = "heartbeat_at")
+  private Instant heartbeatAt;
+
+  @Column(name = "cancel_at")
+  private Instant cancelAt;
 
   @Version
   @Column(name = "version", nullable = false)
@@ -71,6 +99,14 @@ public final class Task implements Persistable<String> {
     this.status = status;
   }
 
+  public TaskStatus getStatusPrev() {
+    return statusPrev;
+  }
+
+  public void setStatusPrev(TaskStatus statusPrev) {
+    this.statusPrev = statusPrev;
+  }
+
   public Instant getCreatedAt() {
     return createdAt;
   }
@@ -95,6 +131,83 @@ public final class Task implements Persistable<String> {
     this.meta = meta;
   }
 
+  public Integer getAttemptCurrent() {
+    return attemptCurrent;
+  }
+
+  public void setAttemptCurrent(Integer attemptCurrent) {
+    this.attemptCurrent = attemptCurrent;
+  }
+
+  public Integer getAttemptMax() {
+    return attemptMax;
+  }
+
+  public void setAttemptMax(Integer attemptMax) {
+    this.attemptMax = attemptMax;
+  }
+
+  public Instant getNextAttemptAt() {
+    return nextAttemptAt;
+  }
+
+  public void setNextAttemptAt(Instant nextAttemptAt) {
+    this.nextAttemptAt = nextAttemptAt;
+  }
+
+  public Integer getPriority() {
+    return priority;
+  }
+
+  public void setPriority(Integer priority) {
+    this.priority = priority;
+  }
+
+  public String getLockedBy() {
+    return lockedBy;
+  }
+
+  public void setLockedBy(String lockedBy) {
+    this.lockedBy = lockedBy;
+  }
+
+  public Instant getLockedAt() {
+    return lockedAt;
+  }
+
+  public void setLockedAt(Instant lockedAt) {
+    this.lockedAt = lockedAt;
+  }
+
+  public Instant getHeartbeatAt() {
+    return heartbeatAt;
+  }
+
+  public void setHeartbeatAt(Instant heartbeatAt) {
+    this.heartbeatAt = heartbeatAt;
+  }
+
+  public Instant getCancelAt() {
+    return cancelAt;
+  }
+
+  public void setCancelAt(Instant cancelAt) {
+    this.cancelAt = cancelAt;
+  }
+
+  public Long getVersion() {
+    return version;
+  }
+
+  public void unlock() {
+    this.lockedAt = null;
+    this.lockedBy = null;
+  }
+
+  private void setVersion(Long version) {
+    this.version = version;
+  }
+
   @Override
   public boolean isNew() {
     return isNew;
@@ -108,13 +221,5 @@ public final class Task implements Persistable<String> {
   @PostPersist
   void markNotNew() {
     this.isNew = false;
-  }
-
-  public Long getVersion() {
-    return version;
-  }
-
-  private void setVersion(Long version) {
-    this.version = version;
   }
 }
