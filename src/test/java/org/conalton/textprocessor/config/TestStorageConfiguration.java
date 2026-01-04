@@ -19,18 +19,27 @@ public class TestStorageConfiguration {
   FileStoragePort fileStoragePortStub(
       StorageProperties storageProps, StorageLocationResolver resolver) {
 
-    return (StorageLocation location, String uploadPath) -> {
-      String bucketName = resolver.resolveStorageBucket(location);
+    return new FileStoragePort() {
+      @Override
+      public PresignedUrlData generatePresignedUploadUrl(
+          StorageLocation location, String uploadPath) {
+        String bucketName = resolver.resolveStorageBucket(location);
 
-      String fakeUrl =
-          "https://stub.local/"
-              + bucketName
-              + "/"
-              + uploadPath
-              + "?expires="
-              + storageProps.getPresignedUrlExpirationMinutes();
+        String fakeUrl =
+            "https://stub.local/"
+                + bucketName
+                + "/"
+                + uploadPath
+                + "?expires="
+                + storageProps.getPresignedUrlExpirationMinutes();
 
-      return new PresignedUrlData(fakeUrl, uploadPath);
+        return new PresignedUrlData(fakeUrl, uploadPath);
+      }
+
+      public void copy(StorageLocation locFrom, String from, StorageLocation locTo, String to) {}
+      ;
+
+      public void delete(StorageLocation loc, String path) {}
     };
   }
 }

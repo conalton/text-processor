@@ -6,6 +6,7 @@ import org.conalton.textprocessor.domain.storage.port.FileStoragePort;
 import org.conalton.textprocessor.domain.storage.service.StorageLocationResolver;
 import org.conalton.textprocessor.domain.storage.types.PresignedUrlData;
 import org.conalton.textprocessor.domain.storage.types.StorageLocation;
+import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.PresignedPutObjectRequest;
@@ -15,14 +16,17 @@ public class S3FileStorageAdapter implements FileStoragePort {
   private final S3Presigner s3Presigner;
   private final StorageProperties storageProps;
   private final StorageLocationResolver storageLocationResolver;
+  private final S3Client s3Client;
 
   public S3FileStorageAdapter(
       S3Presigner s3Presigner,
       StorageProperties storageProps,
-      StorageLocationResolver storageLocationResolver) {
+      StorageLocationResolver storageLocationResolver,
+      S3Client s3Client) {
     this.s3Presigner = s3Presigner;
     this.storageProps = storageProps;
     this.storageLocationResolver = storageLocationResolver;
+    this.s3Client = s3Client;
   }
 
   @Override
@@ -42,5 +46,23 @@ public class S3FileStorageAdapter implements FileStoragePort {
         s3Presigner.presignPutObject(putObjectPresignRequest);
 
     return new PresignedUrlData(presignedRequest.url().toString(), uploadPath);
+  }
+
+  public void copy(StorageLocation locFrom, String from, StorageLocation locTo, String to) {
+    String bucketNameFrom = storageLocationResolver.resolveStorageBucket(locFrom);
+    String bucketNameTo = storageLocationResolver.resolveStorageBucket(locTo);
+
+    s3Client.copyObject(
+        r ->
+            r.sourceBucket(bucketNameFrom)
+                .sourceKey(from)
+                .destinationBucket(bucketNameTo)
+                .destinationKey(to));
+  }
+
+  public void delete(StorageLocation loc, String path) {
+    String bucketName = storageLocationResolver.resolveStorageBucket(loc);
+
+    s3Client.deleteObject(r -> r.bucket(bucketName).key(path));
   }
 }

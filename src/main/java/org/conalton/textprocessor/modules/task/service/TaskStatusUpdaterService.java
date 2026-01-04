@@ -26,7 +26,7 @@ public class TaskStatusUpdaterService {
       return;
     }
 
-    TaskStatus currentStatus = taskStatusFlowService.getTaskStatusWhenFiledUploadIsPending();
+    TaskStatus currentStatus = taskStatusFlowService.getTaskStatusWhenFileUploadIsPending();
     TaskStatus newStatus = taskStatusFlowService.getTaskNextTaskStatus(currentStatus);
 
     int updatedAmount =
@@ -39,6 +39,10 @@ public class TaskStatusUpdaterService {
           paths.size(),
           newStatus,
           updatedAmount);
+
+      return;
     }
+
+    log.debug("Updated {} tasks with new status: {}", updatedAmount, newStatus);
   }
 }

@@ -9,7 +9,7 @@ import org.springframework.validation.annotation.Validated;
 @Validated
 @ConfigurationProperties(prefix = "modules.task.worker")
 public class WorkerProperties {
-  @Min(1)
+  @Min(0)
   @Max(24)
   private int numWorkers;
 
