@@ -96,7 +96,15 @@ This command creates:
 
 ### 4. Database Migrations
 
-The application uses Flyway to automatically apply database migrations on startup, so there is no need for any manual steps to keep the schema up to date. If you want to add a new migration script, run: ```bash ./run.sh migration-add ``` This will prompt you for a readable migration name (e.g., add_users_table) and create a file named `V<timestamp>__<sanitized_name>.sql` inside `src/main/resources/db/migration`.
+The application uses Flyway to automatically apply database migrations on startup, so there is no need for any manual steps to keep the schema up to date.
+
+If you want to add a new migration script, run:
+
+```bash
+./run.sh migration-add
+```
+
+This will prompt you for a readable migration name (e.g., `add_users_table`) and create a file named `V<timestamp>__<sanitized_name>.sql` inside `src/main/resources/db/migration`.
 
 ### 5. Run the Application
 
@@ -233,9 +241,8 @@ The executable JAR will be available at `build/libs/app-1.0-SNAPSHOT.jar`
 
 The application supports multiple profiles:
 
-- **dev** (default): Uses MySQL and LocalStack for development
-- **test**: Uses H2 in-memory database for testing
-- **prod**: Production configuration (customize as needed)
+- **dev** (default): Uses MySQL and LocalStack for local development
+- **test**: Uses Testcontainers with MySQL for isolated integration testing
 
 Switch profiles by setting the `SPRING_PROFILES_ACTIVE` environment variable.
 
