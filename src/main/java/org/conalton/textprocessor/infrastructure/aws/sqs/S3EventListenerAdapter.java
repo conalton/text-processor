@@ -10,12 +10,8 @@ import java.util.Collections;
 import java.util.List;
 import org.conalton.textprocessor.domain.messaging.port.FileStorageEventListenerPort;
 import org.conalton.textprocessor.domain.storage.types.FileStorageItem;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.stereotype.Service;
 
 /** Parse incoming SQS messages with S3 event notifications. */
-@ConditionalOnProperty(prefix = "cloud.aws", name = "enabled", havingValue = "true")
-@Service
 public class S3EventListenerAdapter implements FileStorageEventListenerPort {
   private final ObjectMapper objectMapper;
 
